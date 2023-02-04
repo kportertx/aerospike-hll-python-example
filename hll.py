@@ -6,6 +6,8 @@ from itertools import combinations
 
 import aerospike
 from aerospike_helpers.operations import hll_operations
+from aerospike_helpers import expressions as exp
+from aerospike_helpers.operations import expression_operations as expops
 import generator
 
 
@@ -148,7 +150,6 @@ def get_intersect_count0(client: aerospike.client, tags: list, month: int) -> No
 
         _, _, result = client.operate(getkey(tags[key], month), ops)
         i3counts += [(f"{key}&?&?", result[HLL_BIN])]
-        print(f"key:{key} tags:{tags} month:{month} i3count:{result[HLL_BIN]}")
 
     i3repeat2counts = []
 
@@ -180,6 +181,28 @@ def get_intersect_count0(client: aerospike.client, tags: list, month: int) -> No
         ]
 
         del (ops, result)
+
+
+    ops = [
+        expops.expression_read(
+            "intersect",
+            # Why does the python client fail here?
+            # exp.hll.HLLGetIntersectCount(
+            #     hlls[1:], hlls[0]
+            # ).compile()
+            exp.hll.HLLGetIntersectCount(
+                hlls[:2],
+                exp.HLLGetUnion(
+                    [hlls[2]],
+                    exp.HLLInit(
+                        None, HLL_INDEX_BITS, 0, HLL_BIN
+                    )
+                )
+            ).compile()
+        )
+    ]
+    val = client.operate(getkey(tags[0], month), ops)[2]["intersect"]
+    print(f"val:{val}")
 
 
     print(f"ucount:{ucount}")
