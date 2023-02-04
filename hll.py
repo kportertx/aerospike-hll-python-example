@@ -186,7 +186,7 @@ def get_intersect_count0(client: aerospike.client, tags: list, month: int) -> No
     ops = [
         expops.expression_read(
             "intersect",
-            # Why does the python client fail here?
+            # FIXME: Why does the python client fail here?
             # exp.hll.HLLGetIntersectCount(
             #     hlls[1:], hlls[0]
             # ).compile()
