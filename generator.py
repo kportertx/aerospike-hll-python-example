@@ -3,6 +3,7 @@ import random
 LOCATION = [
     ["vancouver", "canada"],
     ["vancouver", "washington"],
+    ["washington", "canada"],
     ["mountain_view", "california"],
     ["seattle", "washington"],
     ["dublin", "ireland"],
@@ -30,6 +31,7 @@ TAGS = [
     ["toyota"],
 ]
 
+SEED = random.randint(0, 1_000_000)
 
 def get_index(fraction: float, distribution: list) -> int:
     total = sum(distribution)
@@ -59,8 +61,8 @@ def get_tags() -> list:
 
 def get_profile(id: int, time_quantum: int) -> list:
     profile = []
-    random.seed(id)
+    random.seed(id + SEED)
     profile.extend(get_location())
-    random.seed(id * 1000000 + time_quantum)
+    random.seed(id + SEED * 1000000 + time_quantum)
     profile.extend(get_tags())
     return profile
